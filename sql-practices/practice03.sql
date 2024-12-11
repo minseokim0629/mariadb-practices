@@ -36,7 +36,7 @@ order by name asc;
     join salaries b
       on a.emp_no = b.emp_no
     join titles c
-      on b.emp_no = c.emp_no
+      on a.emp_no = c.emp_no
     join dept_emp d
       on a.emp_no = d.emp_no
     join departments e
@@ -66,9 +66,7 @@ select concat(a.first_name, ' ', a.last_name) as name, d.dept_name, b.title
     on a.emp_no = c.emp_no
   join departments d
     on c.dept_no = d.dept_no
- where a.last_name like 'S%'
-   and b.to_date = '9999-01-01'
-   and c.to_date = '9999-01-01';
+ where a.last_name like 'S%';
    
 -- 문제7.
 -- 현재, 직책이 Engineer인 사원 중에서 현재 급여가 40,000 이상인 사원들의 사번, 이름, 급여 그리고 타이틀을 급여가 큰 순서대로 출력하세요.
@@ -93,30 +91,34 @@ order by c.salary desc;
    where a.to_date = '9999-01-01'
      and b.to_date = '9999-01-01'
 group by b.title
-  having avg_salary >= 50000
+  having avg_salary > 50000
 order by avg_salary desc;
 
 -- 문제9.
 -- 현재, 부서별 평균급여를 평균급여가 큰 순서대로 부서명과 평균연봉을 출력 하세요.
- select c.dept_name, avg(salary) as avg_salary
-    from salaries a 
-    join dept_emp b
+ select d.dept_name, avg(salary) as avg_salary
+    from employees a
+    join salaries b
       on a.emp_no = b.emp_no
-	join departments c
-      on b.dept_no = c.dept_no
-   where a.to_date = '9999-01-01'
-     and b.to_date = '9999-01-01'
-group by b.dept_no
+    join dept_emp c
+      on a.emp_no = c.emp_no
+	join departments d
+      on c.dept_no = d.dept_no
+   where b.to_date = '9999-01-01'
+     and c.to_date = '9999-01-01'
+group by c.dept_no
 order by avg_salary desc;
 
 -- 문제10.
 -- 현재, 직책별 평균급여를 평균급여가 큰 직책 순서대로 직책명과 그 평균연봉을 출력 하세요.
- select b.title, avg(salary) as avg_salary
-    from salaries a 
-    join titles b
+ select c.title, avg(salary) as avg_salary
+    from employees a
+    join salaries b
       on a.emp_no = b.emp_no
-   where a.to_date = '9999-01-01'
-     and b.to_date = '9999-01-01'
-group by b.title
+    join titles c
+      on a.emp_no = c.emp_no
+   where b.to_date = '9999-01-01'
+     and c.to_date = '9999-01-01'
+group by c.title
 order by avg_salary desc;
 
