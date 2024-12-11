@@ -12,7 +12,7 @@ select count(*)
    and b.salary > ( select avg(salary) as avg_salary
 					  from salaries
 					 where to_date = '9999-01-01');
-                     
+                                          
 -- 문제2. (풀었던 문제)
 -- 현재, 각 부서별로 최고의 급여를 받는 사원의 사번, 이름, 부서 급여을 조회하세요. 단 조회결과는 급여의 내림차순으로 정렬합니다.
 select a.emp_no, concat(a.first_name, ' ', a.last_name) as name, d.dept_name, b.salary
@@ -25,18 +25,20 @@ select a.emp_no, concat(a.first_name, ' ', a.last_name) as name, d.dept_name, b.
     on c.dept_no = d.dept_no
   where b.to_date = '9999-01-01'
     and c.to_date = '9999-01-01'
-    and (c.dept_no, b.salary) in (  select a.dept_no, max(b.salary) as max_salary
-								      from dept_emp a
-								      join salaries b
+    and (c.dept_no, b.salary) in (  select b.dept_no, max(c.salary) as max_salary
+								      from employees a
+                                      join dept_emp b
                                         on a.emp_no = b.emp_no
-								     where a.to_date = '9999-01-01'
-                                       and b.to_date = '9999-01-01'
-								  group by a.dept_no )
+								      join salaries c
+                                        on a.emp_no = c.emp_no
+								     where b.to_date = '9999-01-01'
+                                       and c.to_date = '9999-01-01'
+								  group by b.dept_no )
 order by b.salary desc;
 
 -- 문제3.
 -- 현재, 사원 자신들의 부서의 평균급여보다 급여가 많은 사원들의 사번, 이름 그리고 급여를 조회하세요 
- select a.emp_no, concat(a.first_name, ' ', a.last_name) as name, b.salary
+ select count(*), a.emp_no, concat(a.first_name, ' ', a.last_name) as name, b.salary
    from employees a
    join salaries b
      on a.emp_no = b.emp_no
@@ -46,14 +48,16 @@ order by b.salary desc;
      on c.dept_no = d.dept_no
   where b.to_date = '9999-01-01'
     and c.to_date = '9999-01-01'
-    and b.salary > (  select avg(a.salary)
-						from salaries a
-						join dept_emp b
-						  on a.emp_no = b.emp_no
-					   where a.to_date = '9999-01-01'
-						 and b.to_date = '9999-01-01'
-						 and b.dept_no = c.dept_no
-					group by b.dept_no
+    and b.salary > (  select avg(b.salary)
+						from employees a
+						join salaries b
+                          on a.emp_no = b.emp_no
+						join dept_emp c2
+						  on a.emp_no = c2.emp_no
+					   where b.to_date = '9999-01-01'
+						 and c2.to_date = '9999-01-01'
+						 and c2.dept_no = c.dept_no
+					group by c2.dept_no
 				   )
 order by b.salary desc;
 
@@ -102,41 +106,49 @@ order by c.salary desc;
 
 -- 문제6.
 -- 현재, 평균 급여가 가장 높은 부서의 이름 그리고 평균급여를 출력하세요.
-select c.dept_name, avg(a.salary)
-  from salaries a
-  join dept_emp b
-	on a.emp_no = b.emp_no
-  join departments c
-    on b.dept_no = c.dept_no
- where a.to_date = '9999-01-01'
-   and b.to_date = '9999-01-01'
-group by b.dept_no
-  having avg(a.salary) = ( select max(d.avg_salary)
-							 from (   select a.dept_no, avg(b.salary) as avg_salary
-									    from dept_emp a
-									    join salaries b
-									      on a.emp_no = b.emp_no
-									   where a.to_date = '9999-01-01'
-                                         and b.to_date = '9999-01-01'
-								    group by a.dept_no
-								  ) d
+select d.dept_name, avg(b.salary) as avg_salary
+  from employees a
+  join salaries b
+    on a.emp_no = b.emp_no
+  join dept_emp c
+	on a.emp_no = c.emp_no
+  join departments d
+    on c.dept_no = d.dept_no
+ where b.to_date = '9999-01-01'
+   and c.to_date = '9999-01-01'
+group by c.dept_no
+  having avg_salary = ( select max(e.avg_salary)
+							 from (   select b.dept_no, avg(c.salary) as avg_salary
+									    from employees a
+									    join dept_emp b
+                                          on a.emp_no = b.emp_no
+									    join salaries c
+									      on a.emp_no = c.emp_no
+									   where b.to_date = '9999-01-01'
+                                         and c.to_date = '9999-01-01'
+								    group by b.dept_no
+								  ) e
 						  );
 -- 문제7.
 -- 현재, 평균 급여가 가장 높은 직책의 타이틀 그리고 평균급여를 출력하세요.
-  select b.title, avg(a.salary)
-    from salaries a
-    join titles b
+  select c.title, avg(b.salary)
+    from employees a
+    join salaries b
       on a.emp_no = b.emp_no
-   where a.to_date = '9999-01-01'
-     and b.to_date = '9999-01-01'
-group by b.title
-  having avg(a.salary) = ( select max(c.avg_salary)
-							 from (   select b.title, avg(a.salary) as avg_salary
-									    from salaries a
-									    join titles b
+    join titles c
+      on a.emp_no = c.emp_no
+   where b.to_date = '9999-01-01'
+     and c.to_date = '9999-01-01'
+group by c.title
+  having avg(b.salary) = ( select max(d.avg_salary)
+							 from (   select c.title, avg(b.salary) as avg_salary
+										from employees a
+									    join salaries b
                                           on a.emp_no = b.emp_no
-									   where a.to_date = '9999-01-01'
-                                         and b.to_date = '9999-01-01'
-									group by b.title
-								  ) c
+									    join titles c
+                                          on b.emp_no = c.emp_no
+									   where b.to_date = '9999-01-01'
+                                         and c.to_date = '9999-01-01'
+									group by c.title
+								  ) d
 					      );
