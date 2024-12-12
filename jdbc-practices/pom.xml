@@ -1,0 +1,29 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.poscodx</groupId>
+    <artifactId>mariadb-practices</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <artifactId>jdbc-practices</artifactId>
+  
+  <properties>
+  <!-- 버전 명시 필요 그래야 eclipse에서 버전 확인하여 세팅 값 변경 -->
+		<project.build.sourceEncoding>utf-8</project.build.sourceEncoding>
+		<maven.compiler.source>21</maven.compiler.source> 
+		<maven.compiler.target>21</maven.compiler.target>
+	</properties>
+	
+	<dependencies> <!--central repository에서 가져올 수 있도록-->
+		<!-- https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client -->
+		<dependency>
+    		<groupId>org.mariadb.jdbc</groupId>
+    		<artifactId>mariadb-java-client</artifactId>
+    		<version>3.4.0</version>
+		</dependency>
+	</dependencies>
+	
+	<build>
+		<finalName>jdbc-practices</finalName> <!--실제 서버에 배포할 때 build가 필요한 거고, 이클립스에서는 할 필요 x.-->
+	</build>
+</project>
